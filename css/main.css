@@ -1,0 +1,37 @@
+div#yt-typing-container{
+  position: fixed;
+  z-index: 10000;
+  bottom: 3%;
+  left: 3%;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 0
+  border-radius: 5px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  padding: 0;
+  margin: 0;
+}
+
+p#yt-typing-text{
+  padding: 15px 25px;
+  color: #282828;
+  font-size: 25px;
+}
+
+p#yt-typing-credit{
+  padding: 0 25px 15px 25px;
+  color: #dd0000;
+  font-size: 15px;
+}
+
+input#yt-typing-input{
+  color: #282828;
+  font-size: 25px;
+  border: solid 2px #282828;
+  border-radius: 4px;
+  box-shadow: none;
+  background: none;
+}
+input#yt-typing-input:focus{
+  outline: 0;
+  border: solid 2px #dd0000;
+}
