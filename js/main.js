@@ -162,6 +162,7 @@ window.onload = ()=>{
   }
 
   function adjustCCindex(){
+    input_errored = false;
     cc_index = 0;
     while(true){
       if ( video.currentTime < ccs[cc_index+1].start - TIME_BUFFER || cc_index >= ccs.length-2){

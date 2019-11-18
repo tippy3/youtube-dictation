@@ -1,9 +1,10 @@
 {
-  "name": "YouTube-Typing",
+  "name": "YouTube-Type",
+  "short_name": "YouTube-Type",
   "description": "Youtubeの字幕でタイピングゲームができます。英語学習（リスニング）に最適です。",
   "version": "1.0",
   "content_scripts": [{
-    "matches": ["https://*.youtube.com/*", "http://*.youtube.com/*", "file://*/*"],
+    "matches": ["https://*.youtube.com/*", "http://*.youtube.com/*"],
     "run_at": "document_end",
     "css": ["css/main.css"],
     "js": ["js/superagent.js", "js/main.js"]
