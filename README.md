@@ -1,5 +1,5 @@
-# Youtube-Type
-Youtubeの字幕でタイピングゲームができるChrome拡張機能です。英語学習（リスニング）にいかがでしょうか。
+# Youtube-Dictation
+Youtubeの英語字幕でディクテーションをするための拡張機能です。好きな動画で楽しく英語学習。
 
 ## Special Thanks
 
