@@ -1,7 +1,7 @@
 {
-  "name": "YouTube-Type",
-  "short_name": "YouTube-Type",
-  "description": "Youtubeの字幕でタイピングゲームができます。英語学習（リスニング）に最適です。",
+  "name": "YouTube-Dictation",
+  "short_name": "YouTube-Dictation",
+  "description": "YouTubeで楽しく英語学習。好きな動画の英語字幕でディクテーション（リスニング）ができる拡張機能です。",
   "version": "1.0",
   "icons": {
     "128": "images/128.png"
