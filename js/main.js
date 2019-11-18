@@ -10,19 +10,21 @@ window.onload = ()=>{
   let clicked = false;
   let started = false;
   let timeout_id = null;
+  let input_errored = false;
 
   let html = document.createElement("div");
   html.id = "yt-typing-container";
-  html.innerHTML = '<p id="yt-typing-text">YouTube Typing</p><p id="yt-typing-credit">Click to start (or Esc to hide)</p>';
+  html.innerHTML = '<p id="yt-typing-text">YouTube Typing</p><p id="yt-typing-credit">Click to start (or Esc to hide)</p><div id="yt-typing-close" >x</div>';
   html.addEventListener('click', clickEvent);
   document.body.appendChild(html);
+  document.getElementById("yt-typing-close").addEventListener('click', endGame);
 
   function updateCC(text){
+    // textはエスケープ済みです
     document.getElementById("yt-typing-text").innerHTML = text;
-    // XSS対策が必要
   }
 
-  function getVideoID(){
+  function getVideoIDorDeny(){
     if( location.pathname != "/watch" ){
       return null;
     }
@@ -41,7 +43,7 @@ window.onload = ()=>{
     }else{
       clicked = true;
     }
-    video_id = getVideoID();
+    video_id = getVideoIDorDeny();
     if( video_id == null ){
       // 動画視聴ページでない場合
       updateCC("This page has no video");
@@ -113,21 +115,27 @@ window.onload = ()=>{
     }
     let parser = new DOMParser();
     const body = parser.parseFromString(res.text, 'text/xml');
-    const cc_xml = Array.from(body.getElementsByTagName('text')); // 問題数上限
-    Array.prototype.forEach.call(cc_xml, (tmp,i) => {
+    const cc_xml = Array.from(body.getElementsByTagName('text')); // .slice(0,20); // 問題数上限はなし
+    cc_xml.forEach((tmp)=>{
       ccs.push({
         start: Number(tmp.getAttribute('start')),
         dur: Number(tmp.getAttribute('dur')),
-        content: tmp.textContent,
         words: tmp.textContent.split(' ')
       });
+      // textContentでXSS対策済
     });
+    words2blank();
     console.log(ccs);
     startGame();
   }
 
   function words2blank(){
     //wordsの一部をinputタグに変換する処理
+    ccs.forEach((tmp)=>{
+      const rnd = Math.floor( Math.random()*(tmp.words.length-2) )+1; // 最初と最後の単語は除外
+      tmp.answer = tmp.words[rnd].toLowerCase(); // 正解を保存
+      tmp.words[rnd] = `<input id="yt-typing-input" type="text" size="${tmp.answer.length}" autofocus>`;
+    });
   }
 
   function startGame(){
@@ -135,10 +143,8 @@ window.onload = ()=>{
     video = document.getElementsByTagName("video")[0];
     // videoがないときのエラー処理
     const tmp = document.getElementById("yt-typing-credit");
-    tmp.innerHTML = "Click here to reload";
+    tmp.innerHTML = "Click here to reload cc";
     tmp.addEventListener('click', adjustCCindex);
-
-    // updateCC("the <input id='yt-typing-input' type='text' size='8' autofocus></input> story is about connecting the dots.");
     adjustCCindex();
   }
 
@@ -155,8 +161,8 @@ window.onload = ()=>{
   }
 
   function playVideoWithCC(){
-    console.log(`current_cc: ${cc_index}`);
-    if( video_id != getVideoID() ){
+    // console.log(`current_cc: ${cc_index}`);
+    if( video_id != getVideoIDorDeny() ){
       // 動画ページから離脱していたら終了
       endGame();
       return false;
@@ -171,23 +177,34 @@ window.onload = ()=>{
     timeout_id = setTimeout(()=>{
       video.pause();
     }, ( ccs[cc_index+1].start - TIME_BUFFER - video.currentTime )*1000 );
-    updateCC(ccs[cc_index].content);
+    updateCC( ccs[cc_index].words.join(" ") );
+    document.getElementById("yt-typing-input").focus();
   }
 
   function endGame(){
+    clicked = true;
     started = false;
     clearTimeout(timeout_id);
     document.body.removeChild( document.getElementById("yt-typing-container") );
     console.log("See you again!");
+    return false;
   }
 
   document.onkeydown = (event)=>{
     if (event.key === 'Enter') {
       if(started){
-        console.log("enter");
-        // 答え合わせが必要
-        cc_index++;
-        playVideoWithCC();
+        // 答え合わせ
+        const input_box = document.getElementById("yt-typing-input");
+        if( input_box.value.toLowerCase() == ccs[cc_index].answer || input_errored ){
+          input_errored = false;
+          cc_index++;
+          playVideoWithCC();
+        }else{
+          input_errored = true;
+          input_box.value = "";
+          input_box.placeholder = ccs[cc_index].answer;
+          input_box.classList.add("yt-typing-input-error");
+        }
       }
     }else if (event.keyCode === 27) {
       // Escキーの処理

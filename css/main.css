@@ -1,8 +1,8 @@
 div#yt-typing-container{
   position: fixed;
   z-index: 10000;
-  bottom: 3%;
-  left: 3%;
+  bottom: 18px;
+  left: 18px;
   background-color: rgba(255, 255, 255, 0.9);
   border: 0
   border-radius: 5px;
@@ -11,19 +11,38 @@ div#yt-typing-container{
   margin: 0;
 }
 
+div#yt-typing-close{
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  padding: 3px 7px;
+  background-color: transparent;
+  color: gray;
+  font-size: 15px;
+}
+div#yt-typing-close:hover{
+  cursor: pointer;
+}
+
 p#yt-typing-text{
+  margin: 0;
   padding: 15px 25px;
   color: #282828;
   font-size: 25px;
 }
 
 p#yt-typing-credit{
+  margin: 0;
   padding: 0 25px 15px 25px;
   color: #dd0000;
   font-size: 15px;
 }
+p#yt-typing-credit:hover{
+  cursor: pointer;
+}
 
 input#yt-typing-input{
+  margin: 0;
   color: #282828;
   font-size: 25px;
   border: solid 2px #282828;
@@ -34,4 +53,7 @@ input#yt-typing-input{
 input#yt-typing-input:focus{
   outline: 0;
   border: solid 2px #dd0000;
+}
+input.yt-typing-input-error{
+  background-color: #ffe4e1;
 }
