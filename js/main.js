@@ -98,7 +98,6 @@ window.onload = ()=>{
         requestCC(cc_track);
       } else {
         updateCC("This video has no CC in English");
-        throw new Error("This video has no CC in English");
       }
     }
   }
