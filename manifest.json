@@ -10,7 +10,7 @@
     "matches": ["https://*.youtube.com/*", "http://*.youtube.com/*"],
     "run_at": "document_end",
     "css": ["css/main.css"],
-    "js": ["js/superagent.js", "js/main.js"]
+    "js": ["js/superagent.js","js/main.js"]
   }],
   "manifest_version": 2
 }
