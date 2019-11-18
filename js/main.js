@@ -24,6 +24,11 @@ window.onload = ()=>{
     document.getElementById("yt-typing-text").innerHTML = text;
   }
 
+  function removeSymbol(text){
+    return text.replace(/,/g,'').replace(/\./g,'').replace(/\?/g,'')
+    .replace(/:/g,'').replace(/;/g,'').replace(/-/g,'').toLowerCase();
+  }
+
   function getVideoIDorDeny(){
     if( location.pathname != "/watch" ){
       return null;
@@ -52,7 +57,6 @@ window.onload = ()=>{
         clicked = false;
       },3000);
     }else{
-      console.log(video_id);
       requestCCList();
     }
   }
@@ -82,7 +86,6 @@ window.onload = ()=>{
         const tmp = tracks[i];
         const tmp_lang = tmp.getAttribute('lang_code');
         if (tmp_lang === LANG) {
-          // console.log('langが一致', tmp);
           cc_track = tmp.getAttribute('name');
           break;
         }
@@ -120,20 +123,21 @@ window.onload = ()=>{
       ccs.push({
         start: Number(tmp.getAttribute('start')),
         dur: Number(tmp.getAttribute('dur')),
-        words: tmp.textContent.split(' ')
+        words: tmp.textContent.replace(/&quot;/g,'').replace(/&amp;/g,'').replace(/&lt;/g,'').replace(/&gt;/g,'').split(' ')
       });
       // textContentでXSS対策済
     });
-    words2blank();
+    words2input();
     console.log(ccs);
+    console.log(ccs.length);
     startGame();
   }
 
-  function words2blank(){
+  function words2input(){
     //wordsの一部をinputタグに変換する処理
     ccs.forEach((tmp)=>{
       const rnd = Math.floor( Math.random()*(tmp.words.length-2) )+1; // 最初と最後の単語は除外
-      tmp.answer = tmp.words[rnd].toLowerCase(); // 正解を保存
+      tmp.answer = removeSymbol(tmp.words[rnd]); // 正解を保存
       tmp.words[rnd] = `<input id="yt-typing-input" type="text" size="${tmp.answer.length}" autofocus>`;
     });
   }
@@ -161,15 +165,19 @@ window.onload = ()=>{
   }
 
   function playVideoWithCC(){
-    // console.log(`current_cc: ${cc_index}`);
+    console.log(`current_cc: ${cc_index}`);
     if( video_id != getVideoIDorDeny() ){
       // 動画ページから離脱していたら終了
       endGame();
       return false;
     }
-    if( video.currentTime > ccs[cc_index+1].start - TIME_BUFFER ){
+    if( cc_index <= ccs.length-2 && video.currentTime > ccs[cc_index+1].start - TIME_BUFFER ){
       // CCが動画より遅れていたらcc_indexを修正
       adjustCCindex();
+      return false;
+    }
+    if ( cc_index >= ccs.length-1 ){
+      finishGame();
       return false;
     }
     video.play();
@@ -179,6 +187,15 @@ window.onload = ()=>{
     }, ( ccs[cc_index+1].start - TIME_BUFFER - video.currentTime )*1000 );
     updateCC( ccs[cc_index].words.join(" ") );
     document.getElementById("yt-typing-input").focus();
+  }
+
+  function finishGame(){
+    console.log("finish!");
+    updateCC( "Finish! Your score is ..." );
+    document.getElementById("yt-typing-text").classList.add("yt-typing-text-red");
+    const tmp = document.getElementById("yt-typing-credit");
+    tmp.innerHTML = "Reload this page to play again";
+    tmp.removeEventListener('click', adjustCCindex);
   }
 
   function endGame(){
@@ -195,7 +212,8 @@ window.onload = ()=>{
       if(started){
         // 答え合わせ
         const input_box = document.getElementById("yt-typing-input");
-        if( input_box.value.toLowerCase() == ccs[cc_index].answer || input_errored ){
+        const user_answer = removeSymbol(input_box.value);
+        if( user_answer == ccs[cc_index].answer || input_errored ){
           input_errored = false;
           cc_index++;
           playVideoWithCC();

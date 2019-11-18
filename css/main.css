@@ -30,6 +30,9 @@ p#yt-typing-text{
   color: #282828;
   font-size: 25px;
 }
+p.yt-typing-text-red{
+  color: #dd0000 !important;
+}
 
 p#yt-typing-credit{
   margin: 0;
