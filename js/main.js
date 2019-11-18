@@ -7,6 +7,8 @@ window.onload = ()=>{
   let video_id = null;
   let ccs = []; // CClist
   let cc_index = 0;
+  let score_flag = [];
+  let score = 0;
   let clicked = false;
   let started = false;
   let timeout_id = null;
@@ -14,7 +16,7 @@ window.onload = ()=>{
 
   let html = document.createElement("div");
   html.id = "yt-typing-container";
-  html.innerHTML = '<p id="yt-typing-text">YouTube Typing</p><p id="yt-typing-credit">Click to start (or Esc to hide)</p><div id="yt-typing-close" >x</div>';
+  html.innerHTML = '<p id="yt-typing-text">YouTube Typing</p><p id="yt-typing-credit">Click to start (or Esc to hide)</p><div id="yt-typing-close">x</div>';
   html.addEventListener('click', clickEvent);
   document.body.appendChild(html);
   document.getElementById("yt-typing-close").addEventListener('click', endGame);
@@ -130,6 +132,7 @@ window.onload = ()=>{
     words2input();
     console.log(ccs);
     console.log(ccs.length);
+    console.log(score_flag.length);
     startGame();
   }
 
@@ -139,6 +142,7 @@ window.onload = ()=>{
       const rnd = Math.floor( Math.random()*(tmp.words.length-2) )+1; // 最初と最後の単語は除外
       tmp.answer = removeSymbol(tmp.words[rnd]); // 正解を保存
       tmp.words[rnd] = `<input id="yt-typing-input" type="text" size="${tmp.answer.length}" autofocus>`;
+      score_flag.push(false);
     });
   }
 
@@ -146,9 +150,14 @@ window.onload = ()=>{
     started = true;
     video = document.getElementsByTagName("video")[0];
     // videoがないときのエラー処理
+
     const tmp = document.getElementById("yt-typing-credit");
     tmp.innerHTML = "Click here to reload cc";
     tmp.addEventListener('click', adjustCCindex);
+    let html = document.createElement("div");
+    html.id = "yt-typing-score";
+    html.innerHTML = "score: 0";
+    document.getElementById("yt-typing-container").appendChild(html);
     adjustCCindex();
   }
 
@@ -191,7 +200,7 @@ window.onload = ()=>{
 
   function finishGame(){
     console.log("finish!");
-    updateCC( "Finish! Your score is ..." );
+    updateCC( `Finish! Your score is ${score} of ${ccs.length}` );
     document.getElementById("yt-typing-text").classList.add("yt-typing-text-red");
     const tmp = document.getElementById("yt-typing-credit");
     tmp.innerHTML = "Reload this page to play again";
@@ -214,6 +223,11 @@ window.onload = ()=>{
         const input_box = document.getElementById("yt-typing-input");
         const user_answer = removeSymbol(input_box.value);
         if( user_answer == ccs[cc_index].answer || input_errored ){
+          if( !input_errored && !score_flag[cc_index] ){
+            score_flag[cc_index] = true;
+            score++;
+            document.getElementById("yt-typing-score").textContent = `score: ${score}`;
+          }
           input_errored = false;
           cc_index++;
           playVideoWithCC();

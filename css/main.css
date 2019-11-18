@@ -3,6 +3,7 @@ div#yt-typing-container{
   z-index: 10000;
   bottom: 18px;
   left: 18px;
+  min-width: 260px;
   background-color: rgba(255, 255, 255, 0.9);
   border: 0
   border-radius: 5px;
@@ -16,6 +17,7 @@ div#yt-typing-close{
   top: 0px;
   right: 0px;
   padding: 3px 7px;
+  margin: 0;
   background-color: transparent;
   color: gray;
   font-size: 15px;
@@ -59,4 +61,15 @@ input#yt-typing-input:focus{
 }
 input.yt-typing-input-error{
   background-color: #ffe4e1;
+}
+
+div#yt-typing-score{
+  position: absolute;
+  bottom: 15px;
+  right: 7px;
+  padding: 0;
+  margin: 0;
+  background-color: transparent;
+  color: gray;
+  font-size: 15px;
 }
