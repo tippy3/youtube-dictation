@@ -1,3 +1,5 @@
+// https://github.com/tippy3/youtube-type
+
 window.onload = ()=>{
   const SUPERAGENT = window.superagent;
   const YOUTUBE_CC_API = 'https://video.google.com/timedtext';
@@ -16,7 +18,7 @@ window.onload = ()=>{
 
   let html = document.createElement("div");
   html.id = "yt-typing-container";
-  html.innerHTML = '<p id="yt-typing-text">YouTube Typing</p><p id="yt-typing-credit">Click to start (or Esc to hide)</p><div id="yt-typing-close">x</div>';
+  html.innerHTML = '<p id="yt-typing-text">YouTube-Type</p><p id="yt-typing-credit">Click to start (or Esc to hide)</p><div id="yt-typing-close">x</div>';
   html.addEventListener('click', clickEvent);
   document.body.appendChild(html);
   document.getElementById("yt-typing-close").addEventListener('click', endGame);
@@ -55,7 +57,7 @@ window.onload = ()=>{
       // 動画視聴ページでない場合
       updateCC("This page has no video");
       setTimeout(()=>{
-        updateCC("YouTube Typing");
+        updateCC("YouTube-Type");
         clicked = false;
       },3000);
     }else{
@@ -130,9 +132,9 @@ window.onload = ()=>{
       // textContentでXSS対策済
     });
     words2input();
-    console.log(ccs);
-    console.log(ccs.length);
-    console.log(score_flag.length);
+    // console.log(ccs);
+    // console.log(ccs.length);
+    // console.log(score_flag.length);
     startGame();
   }
 
@@ -149,8 +151,6 @@ window.onload = ()=>{
   function startGame(){
     started = true;
     video = document.getElementsByTagName("video")[0];
-    // videoがないときのエラー処理
-
     const tmp = document.getElementById("yt-typing-credit");
     tmp.innerHTML = "Click here to reload cc";
     tmp.addEventListener('click', adjustCCindex);
@@ -170,12 +170,12 @@ window.onload = ()=>{
       }
       cc_index++;
     }
-    console.log(`adjusted_cc: ${cc_index}`);
+    // console.log(`adjusted_cc: ${cc_index}`);
     playVideoWithCC();
   }
 
   function playVideoWithCC(){
-    console.log(`current_cc: ${cc_index}`);
+    // console.log(`current_cc: ${cc_index}`);
     if( video_id != getVideoIDorDeny() ){
       // 動画ページから離脱していたら終了
       endGame();
@@ -200,7 +200,7 @@ window.onload = ()=>{
   }
 
   function finishGame(){
-    console.log("finish!");
+    // console.log("finish!");
     updateCC( `Finish! Your score is ${score} of ${ccs.length}` );
     document.getElementById("yt-typing-text").classList.add("yt-typing-text-red");
     const tmp = document.getElementById("yt-typing-credit");
@@ -213,7 +213,7 @@ window.onload = ()=>{
     started = false;
     clearTimeout(timeout_id);
     document.body.removeChild( document.getElementById("yt-typing-container") );
-    console.log("See you again!");
+    // console.log("See you again!");
     return false;
   }
 
