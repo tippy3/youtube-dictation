@@ -1,4 +1,4 @@
-// https://github.com/tippy3/youtube-type
+// https://github.com/tippy3/youtube-dictation
 
 window.onload = ()=>{
   const SUPERAGENT = window.superagent;
@@ -18,7 +18,7 @@ window.onload = ()=>{
 
   let html = document.createElement("div");
   html.id = "yt-typing-container";
-  html.innerHTML = '<p id="yt-typing-text">YouTube-Type</p><p id="yt-typing-credit">Click to start (or Esc to hide)</p><div id="yt-typing-close">x</div>';
+  html.innerHTML = '<p id="yt-typing-text">YouTube-Dictation</p><p id="yt-typing-credit">Click to start (or Esc to hide)</p><div id="yt-typing-close">x</div>';
   html.addEventListener('click', clickEvent);
   document.body.appendChild(html);
   document.getElementById("yt-typing-close").addEventListener('click', endGame);
@@ -57,7 +57,7 @@ window.onload = ()=>{
       // 動画視聴ページでない場合
       updateCC("This page has no video");
       setTimeout(()=>{
-        updateCC("YouTube-Type");
+        updateCC("YouTube-Dictation");
         clicked = false;
       },3000);
     }else{
