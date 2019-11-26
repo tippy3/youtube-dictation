@@ -10,7 +10,13 @@
     "matches": ["https://*.youtube.com/*", "http://*.youtube.com/*"],
     "run_at": "document_end",
     "css": ["css/main.css"],
-    "js": ["js/superagent.js","js/main.js"]
+    "js": ["js/superagent.js", "js/underscore-master/underscore.js", "js/javascript-lemmatizer-master/js/lemmatizer.js", "js/kantan-ej-dictionary-master/kantan-ej-dictionary.js", "js/main.js"]
   }],
+  "web_accessible_resources": [
+    "js/javascript-lemmatizer-master/dict/*.json"
+  ],
+  "permissions": [
+    "storage"
+  ],
   "manifest_version": 2
 }

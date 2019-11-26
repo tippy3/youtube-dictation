@@ -1,10 +1,14 @@
+// MIT License
+// Copyright (c) tippy3 and motonari728
 // https://github.com/tippy3/youtube-dictation
 
 window.onload = ()=>{
   const SUPERAGENT = window.superagent;
+  const LEMMATIZER = new Lemmatizer();
   const YOUTUBE_CC_API = 'https://video.google.com/timedtext';
   const LANG = "en";
-  const TIME_BUFFER = 0.15;
+  const TIME_BUFFER = 0.1;
+  const USER_SVL_LEVEL = 5;
   let video = null;
   let video_id = null;
   let ccs = []; // CClist
@@ -29,8 +33,8 @@ window.onload = ()=>{
   }
 
   function removeSymbol(text){
-    return text.replace(/,/g,'').replace(/\./g,'').replace(/\?/g,'')
-    .replace(/:/g,'').replace(/;/g,'').replace(/-/g,'').toLowerCase();
+    return text.replace(/,/g,'').replace(/\./g,'').replace(/-/g,'').replace(/\?/g,'')
+    .replace(/:/g,'').replace(/;/g,'').replace(/\[/g,'').replace(/\]/g,'').toLowerCase();
   }
 
   function getVideoIDorDeny(){
@@ -103,13 +107,14 @@ window.onload = ()=>{
   }
 
   function requestCC(target_track){
+    updateCC("Loading......");
     SUPERAGENT
     .get(YOUTUBE_CC_API)
     .accept('json')
     .query({
-        lang: LANG,
-        name: target_track,
-        v: video_id
+      lang: LANG,
+      name: target_track,
+      v: video_id
     })
     .end(responseCC);
   }
@@ -127,23 +132,74 @@ window.onload = ()=>{
         start: Number(tmp.getAttribute('start')),
         dur: Number(tmp.getAttribute('dur')),
         words: tmp.textContent.replace(/&quot;/g,'').replace(/&amp;/g,'').replace(/&lt;/g,'').replace(/&gt;/g,'').split(' ')
-      });
-      // textContentでXSS対策済
+      }); // textContentでXSS対策済
+      score_flag.push(false);
     });
-    words2input();
-    // console.log(ccs);
-    // console.log(ccs.length);
-    // console.log(score_flag.length);
+    createQuiz();
+    console.log(ccs);
     startGame();
   }
 
-  function words2input(){
-    //wordsの一部をinputタグに変換する処理
-    ccs.forEach((tmp)=>{
-      const rnd = Math.floor( Math.random()*(tmp.words.length-2) )+1; // 最初と最後の単語は除外
-      tmp.answer = removeSymbol(tmp.words[rnd]); // 正解を保存
-      tmp.words[rnd] = `<input id="yt-typing-input" type="text" size="${tmp.answer.length}" autofocus>`;
-      score_flag.push(false);
+  function createQuiz(){
+    updateCC("Loading.........");
+    ccs.forEach((cc,num)=>{
+      let candidates = []; // 問題にする単語の候補(単語のインデックス番号が入る)
+      let min_diff = 99;
+      // console.log( "#" + num + "  " + cc.words.join(" ") + " (" +  cc.words.length + ")" );
+      // 3単語以上で問題を出題する
+      if(cc.words.length >= 3){
+        cc.words.forEach((word,index)=>{
+          if( index == 0 || index==cc.words.length-1 ){
+            // 最初と最後の単語は除外
+            // console.log("skip: " + index);
+            return false;
+          }
+          // 単語の原型を取得
+          let result = LEMMATIZER.lemmas( removeSymbol(word) );
+          if(result.length==0){
+            // console.log("lemmas no hit: " + word);
+            result = word;
+          }else{
+            result = result[0][0];
+          }
+          // 翻訳を取得
+          result = kanten_dictionary[result];
+          if(!result){
+            // console.log("kanten no hit: "+ word);
+            return false;
+          }
+          if(!result.svl_level){
+            // console.log("svl_level none: "+ word);
+            return false;
+          }
+          // console.log(result.svl_level + " : " + word);
+
+          // 単語のレベルとユーザーのレベルの差を求める
+          const diff = Math.abs( result.svl_level - USER_SVL_LEVEL );
+          if( diff<min_diff || min_diff==99 ){
+            // レベルの近い単語が見つかった場合、その単語にする
+            min_diff = diff;
+            candidates = [];
+            candidates.push(index);
+          }else if( diff==min_diff ){
+            // レベルが同じ単語が見つかった場合、その単語を候補に入れる
+            candidates.push(index);
+          }
+        });
+      }
+
+      if(candidates.length==0){
+        // 問題候補がゼロの場合
+        cc.words.push('<span id="yt-typing-pressenter"> (press enter)</span>');
+        return false;
+      }else{
+        // 候補から１つ選び問題を作成
+        const final_result = _.shuffle(candidates)[0];
+        // console.log(candidates.join(",") + " -> " + final_result );
+        cc.answer = removeSymbol(cc.words[final_result]); // 正解を保存
+        cc.words[final_result] = `<input id="yt-typing-input" type="text" size="${cc.answer.length}" autofocus>`;
+        // cc.kanten = kanten_dictionary[];
+      }
     });
   }
 
@@ -195,7 +251,10 @@ window.onload = ()=>{
       video.pause();
     }, ( ccs[cc_index+1].start - TIME_BUFFER - video.currentTime )*1000 );
     updateCC( ccs[cc_index].words.join(" ") );
-    document.getElementById("yt-typing-input").focus();
+    const input_box = document.getElementById("yt-typing-input");
+    if(input_box){
+      input_box.focus();
+    }
   }
 
   function finishGame(){
@@ -221,9 +280,8 @@ window.onload = ()=>{
       if(started){
         // 答え合わせ
         const input_box = document.getElementById("yt-typing-input");
-        const user_answer = removeSymbol(input_box.value);
-        if( user_answer == ccs[cc_index].answer || input_errored ){
-          if( !input_errored && !score_flag[cc_index] ){
+        if( !input_box || input_errored || removeSymbol(input_box.value) == ccs[cc_index].answer ){
+          if( !input_box || (!input_errored && !score_flag[cc_index]) ){
             score_flag[cc_index] = true;
             score++;
             document.getElementById("yt-typing-score").textContent = `score: ${score}`;
