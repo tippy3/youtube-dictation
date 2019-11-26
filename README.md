@@ -10,7 +10,7 @@ Youtubeの英語字幕でディクテーションをするための拡張機能�
 軽量でとても素晴らしいHTTPリクエストクライアント
 
 ### [underscore](https://github.com/jashkenas/underscore)
-便利な関数をたくさん提供してくれるとても素晴らしいライブラリ
+JavaScriptの表現力を高めてくれるとても素晴らしい関数群
 
 ### [javascript-lemmatizer](https://github.com/takafumir/javascript-lemmatizer)
 英単語の原型を取得できるとても素晴らしいライブラリ
