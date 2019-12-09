@@ -177,12 +177,12 @@ window.onload = ()=>{
           // 単語のレベルとユーザーのレベルの差を求める
           const diff = Math.abs( result.svl_level - USER_SVL_LEVEL );
           if( diff<min_diff || min_diff==99 ){
-            // レベルの近い単語が見つかった場合、その単語にする
+            // よりレベルの近い単語が見つかった場合、その単語を候補にする
             min_diff = diff;
             candidates = [];
             candidates.push(index);
           }else if( diff==min_diff ){
-            // レベルが同じ単語が見つかった場合、その単語を候補に入れる
+            // レベルの差が同じ単語が見つかった場合、その単語を候補に入れる
             candidates.push(index);
           }
         });
@@ -196,9 +196,9 @@ window.onload = ()=>{
         // 候補から１つ選び問題を作成
         const final_result = _.shuffle(candidates)[0];
         // console.log(candidates.join(",") + " -> " + final_result );
-        cc.answer = removeSymbol(cc.words[final_result]); // 正解を保存
+        cc.answer = removeSymbol(cc.words[final_result]);
         cc.words[final_result] = `<input id="yt-typing-input" type="text" size="${cc.answer.length}" autofocus>`;
-        // cc.kanten = kanten_dictionary[];
+        // cc.kanten = kanten_dictionary[]; //TODO 和訳を入れる
       }
     });
   }
