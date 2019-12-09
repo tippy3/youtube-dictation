@@ -193,12 +193,12 @@ Lemmatizer.prototype = {
   },
 
   store_data: function(key, data) {
-    console.log("store: "+key);
+    // console.log("store: "+key);
     localStorage.setItem("chrome-extension-ytd-"+key, data);
   },
 
   fetch_data: function(key) {
-    console.log("fetch: "+key);
+    // console.log("fetch: "+key);
     var data = JSON.parse(localStorage.getItem("chrome-extension-ytd-"+key));
     return data;
   },
