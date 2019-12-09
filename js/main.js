@@ -2,7 +2,6 @@
 // Copyright (c) tippy3 and motonari728
 // https://github.com/tippy3/youtube-dictation
 
-
 window.onload = ()=>{
   const SUPERAGENT = window.superagent;
   const LEMMATIZER = new Lemmatizer();
@@ -137,7 +136,7 @@ window.onload = ()=>{
       score_flag.push(false);
     });
     createQuiz();
-    // console.log(ccs);
+    console.log(ccs);
     startGame();
   }
 
@@ -156,14 +155,11 @@ window.onload = ()=>{
           }
           const original_word = removeSymbol(word);
           let result = kanten_dictionary[original_word]; // まずは英単語を辞書で検索
-          if(result && result.svl_level){
-            // 辞書にヒットした場合
-            console.log("ヒット: " + result.svl_level + " : " + word);
-          }else{
+          if(!result || !result.svl_level){
             // 辞書にヒットしなかった場合
             const lemma = LEMMATIZER.lemmas( original_word ); // 英単語を原型に戻す
             if(lemma.length==0){
-              console.log("原型に戻せず: " + word);
+              // 原型に戻せなかった場合
               return false;
             }else{
               result = lemma[0][0];
@@ -171,10 +167,7 @@ window.onload = ()=>{
             result = kanten_dictionary[result];
             if(!result || !result.svl_level){
               // 原型でも辞書にヒットしなかった場合
-              console.log("原型でもヒットせず: " + word);
-              return false
-            }else{
-              console.log("原型でヒット: " + result.svl_level + " : " + word);
+              return false;
             }
           }
 
